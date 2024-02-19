@@ -1,43 +1,36 @@
-const { createProduct, findAllProduct, findProductByID, updateProductByID, updateProductByName } = require("./product.repository");
+const { createProduct, findAllProduct, findProductByID, updateProductByID, updateProductByName, deleteProduct } = require("./product.repository");
 
-const inputProduct = async (nama, price, stock, status) => {
-    if (!nama || !price || !status) {
-        throw new Error('Nama, price dan status wajib diisi.');
-    }   
-    const product = await createProduct(nama, price, stock, status);
+const inputProductServices = async (nama, price, stock, status, image_url) => {
+    const product = await createProduct(nama, price, stock, status, image_url);
     return product;
 };
 
-const findProduct = async (id) => {
-    if (id === undefined) {
-        const products = await findAllProduct();
-        return products;
-    } else {
-        const product = await findProductByID(id);
-        return product;
-    }
+const findAllProductServices = async () => {
+    const products = await findAllProduct();
+    return products;
+
 };
 
-const updateProduct = async (id, data) => {
-    const {nama, price, stock, status} = data;
+const findProductIDServices = async (id) => {
+    const product = await findProductByID(id);
+    return product;
+};
+
+const updateProductServices = async (id, data) => {
+    const {nama, price, stock, status, filename: pict} = data;
     if (id) {
-        try {
-            const result = await updateProductByID(id, nama, price, stock, status);
-            return result;
-        } catch (error) {
-            throw new Error(error.message);
-        }
+        const result = await updateProductByID(id, data);
+        return result;
     } else if (nama) {
-        try {
-            const result = await updateProductByName(nama, price, stock, status);
-            return result;
-        } catch (error) {
-            throw new Error(error.message);
-        }
-    } else {
-        throw new Error('ID or name must be provided for updating product');
+        const result = await updateProductByName(nama, price, stock, status, pict);
+        return result;
     }
 };
 
+const deleteProductServices = async (id) => {
+    const result = await deleteProduct(id);
+    return result;
+}
 
-module.exports = {inputProduct, findProduct, updateProduct};
+
+module.exports = {inputProductServices, findAllProductServices, updateProductServices, findProductIDServices, deleteProductServices};
