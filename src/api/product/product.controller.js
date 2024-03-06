@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const { updateProductServices, findAllProductServices, findProductIDServices, inputProductServices, deleteProductServices} = require('./product.service');
-const config = require('../config');
+const config = require('../../config');
 
 
 const inputProduct = async (nama, price, stock, status, pict) => {
@@ -62,7 +62,7 @@ const findProduct = async (id) => {
                 price: product._doc.price,
                 stock: product._doc.stock,
                 status: product._doc.status,
-                image_url: `localhost:2020/public/images/products/${product.image_url}`
+                image_url: `localhost:3030/public/images/products/${product.image_url}`
             };
         });
 
@@ -78,7 +78,7 @@ const findProduct = async (id) => {
             price: product._doc.price,
             stock: product._doc.stock,
             status: product._doc.status,
-            image_url: `localhost:2020/public/images/products/${product.image_url}`
+            image_url: `localhost:3030/public/images/products/${product.image_url}`
         }; // Mengembalikan object tunggal, bukan string JSON
     }
 
@@ -165,8 +165,16 @@ const updateMultipleProducts = async (productsData) => {
 const deleteProduct = async (id) => {
     const existProduct = await findProductIDServices(id);
     if (existProduct) { // Periksa apakah produk ditemukan (bukan null atau undefined)
-        if (existProduct.image_url && existProduct.image_url != 'default.svg') {
-            fs.unlinkSync(path.resolve(config.rootPath, `public/images/products/${existProduct.image_url}`));
+        try {
+            if (existProduct.image_url && existProduct.image_url != 'default.svg') {
+                fs.unlinkSync(path.resolve(config.rootPath, `public/images/products/${existProduct.image_url}`));
+            }
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                console.log(`File gambar produk tidak ditemukan untuk produk ID: ${id}`);
+            } else {
+                throw error; // Lepaskan error untuk error lainnya
+            }
         }
         const result = await deleteProductServices(id);
         return result;

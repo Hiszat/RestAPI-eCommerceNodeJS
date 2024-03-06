@@ -1,4 +1,4 @@
-const Product = require("../db/model/product");
+const Product = require("../../db/model/product");
 
 const createProduct = async (nama, price, stock, status, image_url) => {
       const product = await Product.create({

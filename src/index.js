@@ -10,13 +10,11 @@ const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(cors());
+
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-const prodRouter = require("./product/product.router");
-app.use("/product", prodRouter);
-
-const catRouter = require('./categories/categories.router');
-app.use('/categories', catRouter);
+const apiV1Router = require('./api');
+app.use('/api', apiV1Router);
 
 app.listen(PORT, () => {
     console.log("App sudah berjalan di PORT: " + PORT);

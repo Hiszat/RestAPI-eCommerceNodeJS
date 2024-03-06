@@ -1,4 +1,4 @@
-const Categories = require("../db/model/categories");
+const Categories = require("../../db/model/categories");
 
 const createCategories = async (nama) => {
       const categories = await Categories.create({
