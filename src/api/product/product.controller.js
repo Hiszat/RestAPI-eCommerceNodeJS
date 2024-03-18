@@ -2,14 +2,27 @@ const path = require('path');
 const fs = require('fs');
 const { updateProductServices, findAllProductServices, findProductIDServices, inputProductServices, deleteProductServices} = require('./product.service');
 const config = require('../../config');
+const { findCategoriesByName } = require('../categories/categories.service');
 
 
-const inputProduct = async (nama, price, stock, status, pict) => {
+const inputProduct = async (data, pict) => {
+    let cat_id = undefined;
+    const {nama, price, stock, status, category} = data;
+
     if (!nama || !price || !status) {
         throw new Error('Nama, price, dan status wajib diisi.');
     }
 
     try {
+        if(category) {
+            let categories = await findCategoriesByName(category);
+            if(categories){
+                cat_id = categories._id;
+            }else{
+                delete category;
+            }
+        }
+        // console.log(cat_id);
         if (pict) {
             let tmp_path = pict.path;
             let originalExt = pict.originalname.split('.')[pict.originalname.split('.').length - 1];
@@ -23,7 +36,7 @@ const inputProduct = async (nama, price, stock, status, pict) => {
             await new Promise((resolve, reject) => {
                 src.on('end', async () => {
                     try {
-                        let product = await inputProductServices(nama, price, stock, status, filename);
+                        let product = await inputProductServices(nama, price, stock, status, cat_id, filename);
                         resolve(product);
                     } catch (error) {
                         fs.unlinkSync(target_path);
@@ -32,7 +45,7 @@ const inputProduct = async (nama, price, stock, status, pict) => {
                 });
             });
         } else {
-            const product = await inputProductServices(nama, price, stock, status, 'default.svg');
+            const product = await inputProductServices(nama, price, stock, status, cat_id, 'default.svg');
             return product;
         }
     } catch (error) {
@@ -62,6 +75,7 @@ const findProduct = async (id) => {
                 price: product._doc.price,
                 stock: product._doc.stock,
                 status: product._doc.status,
+                category: product._doc.category,
                 image_url: `localhost:3030/public/images/products/${product.image_url}`
             };
         });
@@ -78,6 +92,7 @@ const findProduct = async (id) => {
             price: product._doc.price,
             stock: product._doc.stock,
             status: product._doc.status,
+            category: product._doc.category,
             image_url: `localhost:3030/public/images/products/${product.image_url}`
         }; // Mengembalikan object tunggal, bukan string JSON
     }

@@ -21,7 +21,11 @@ const productSchema = Schema({
     type: Boolean,
     required: true,
   },
-  image_url: String
+  image_url: String,
+  category: {
+    type: Schema.Types.ObjectId,
+    ref: 'Categories'
+  }
 
 }, {timestamps: true});
 

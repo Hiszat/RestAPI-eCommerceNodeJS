@@ -1,11 +1,13 @@
 const Product = require("../../db/model/product");
+const Categories = require("../../db/model/categories");
 
-const createProduct = async (nama, price, stock, status, image_url) => {
+const createProduct = async (nama, price, stock, status, category, image_url) => {
       const product = await Product.create({
           name: nama,
           price: price,
           stock: stock,
           status: status,
+          category: category,
           image_url : image_url
       });
       return product;
@@ -44,14 +46,15 @@ const updateProductByName = async (nama, price, stock, status, pict) => {
 
 
 const findAllProduct = async () => {
+    
     await Product.updateMany({ image_url: { $exists: false } }, { $set: { image_url: "default.svg" } });
-    const products = await Product.find({}, "_id name price stock status image_url");
+    const products = await Product.find().populate('category');
     return products;
 
 };
 
 const findProductByID = async (id) => {
-    const products = await Product.findById(id, "_id name price stock status image_url");
+    const products = await Product.findById(id, "_id name price stock status category image_url");
     return products;
 } 
 

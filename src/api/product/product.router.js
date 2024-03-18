@@ -27,9 +27,9 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', upload.single('product'), async (req, res) => {
     try {
-        const { nama, price, stock, status } = req.body;
+        const payload = req.body;
         const gambar = req.file;
-        const product = await inputProduct(nama, price, stock, status, gambar);
+        const product = await inputProduct(payload, gambar);
         res.status(200).send(product);
     } catch (error) {
         res.status(400).send(error.message);

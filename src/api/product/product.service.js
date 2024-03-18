@@ -1,7 +1,7 @@
 const { createProduct, findAllProduct, findProductByID, updateProductByID, updateProductByName, deleteProduct } = require("./product.repository");
 
-const inputProductServices = async (nama, price, stock, status, image_url) => {
-    const product = await createProduct(nama, price, stock, status, image_url);
+const inputProductServices = async (nama, price, stock, status, category, image_url) => {
+    const product = await createProduct(nama, price, stock, status, category, image_url);
     return product;
 };
 

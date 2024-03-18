@@ -1,4 +1,4 @@
-const { createCategories, findAllCategories, updateCategoriesByID, deleteCategories } = require("./categories.repository");
+const { createCategories, findAllCategories, updateCategoriesByID, deleteCategories, searchCategory } = require("./categories.repository");
 
 const inputCategoriesServices = async (nama) => {
     const result = await createCategories(nama);
@@ -6,9 +6,14 @@ const inputCategoriesServices = async (nama) => {
 };
 
 const findAllCategoriesServices = async () => {
-    const products = await findAllCategories();
-    return products;
+    const result = await findAllCategories();
+    return result;
 };
+
+const findCategoriesByName = async (name) => {
+    const result = await searchCategory(name);
+    return result;
+}
 
 const updateCategoriesServices = async (id, nama) => {
     const result = await updateCategoriesByID(id, nama);
@@ -24,5 +29,6 @@ module.exports = {
     inputCategoriesServices,
     findAllCategoriesServices,
     updateCategoriesServices,
-    deleteCategoriesServices
+    deleteCategoriesServices,
+    findCategoriesByName
 }

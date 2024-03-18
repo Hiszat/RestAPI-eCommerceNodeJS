@@ -34,6 +34,11 @@ const findCategoriesByID = async (id) => {
     return categories;
 } 
 
+const searchCategory = async (nama) => {
+    const categories = await Categories.findOne({name: {$regex : nama, $options : 'i'}});
+    return categories;
+}
+
 const deleteCategories = async (id) => {
     const result = await Categories.findByIdAndDelete(id);
     return result;
@@ -44,5 +49,6 @@ module.exports = {
     updateCategoriesByID,
     findAllCategories,
     findCategoriesByID,
-    deleteCategories
+    deleteCategories,
+    searchCategory
 }
