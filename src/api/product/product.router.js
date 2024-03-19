@@ -39,9 +39,9 @@ router.post('/', upload.single('product'), async (req, res) => {
 router.put('/:id',  upload.single('product'), async (req, res) => {
     try {
         const id = req.params.id;
-        const {nama, price, stock, status} = req.body;
+        const {nama, price, stock, category, tags, status} = req.body;
         const pict = req.file;
-        const product = await updateProduct({id, nama, price, stock, status, pict});
+        const product = await updateProduct({id, nama, price, stock, status, category, tags, pict});
         res.send({
             msg: "Data berhasil di input",
             data: product
