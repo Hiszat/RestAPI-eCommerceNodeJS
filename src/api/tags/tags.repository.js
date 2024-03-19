@@ -29,6 +29,12 @@ const findAllTags = async () => {
 
 };
 
+const findTags = async (tags) => {
+    const result = await Tags.find({name: {$in: tags}});
+    return result;
+
+};
+
 const findTagsByID = async (id) => {
     const tags = await Tags.findById(id, "_id name");
     return tags;
@@ -44,5 +50,6 @@ module.exports = {
     updateTagsByID,
     findAllTags,
     findTagsByID,
-    deleteTags
+    deleteTags,
+    findTags
 }

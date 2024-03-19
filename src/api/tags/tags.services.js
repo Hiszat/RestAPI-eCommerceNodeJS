@@ -1,4 +1,4 @@
-const {createTags, findAllTags, updateTagsByID, deleteTags} = require('./tags.repository');
+const {createTags, findAllTags, updateTagsByID, deleteTags, findTags} = require('./tags.repository');
 
 const inputTagsServices = async (nama) => {
     const result = await createTags(nama);
@@ -6,8 +6,13 @@ const inputTagsServices = async (nama) => {
 };
 
 const findAllTagsServices = async () => {
-    const products = await findAllTags();
-    return products;
+    const tags = await findAllTags();
+    return tags;
+};
+
+const searchTags = async (tags) => {
+    const result = await findTags(tags);
+    return result;
 };
 
 const updateTagsServices = async (id, nama) => {
@@ -24,5 +29,6 @@ module.exports = {
     inputTagsServices,
     findAllTagsServices,
     updateTagsServices,
-    deleteTagsServices
+    deleteTagsServices,
+    searchTags
 }

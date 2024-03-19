@@ -3,12 +3,15 @@ const fs = require('fs');
 const { updateProductServices, findAllProductServices, findProductIDServices, inputProductServices, deleteProductServices} = require('./product.service');
 const config = require('../../config');
 const { findCategoriesByName } = require('../categories/categories.service');
+const { searchTags } = require('../tags/tags.services');
+const { error } = require('console');
 
 
 const inputProduct = async (data, pict) => {
     let cat_id = undefined;
-    const {nama, price, stock, status, category} = data;
-
+    let tags_arr = undefined;
+    const {nama, price, stock, status, category, tags} = data;
+   
     if (!nama || !price || !status) {
         throw new Error('Nama, price, dan status wajib diisi.');
     }
@@ -22,7 +25,16 @@ const inputProduct = async (data, pict) => {
                 delete category;
             }
         }
-        // console.log(cat_id);
+
+        if(tags && tags.length > 0) {
+            let tagss = await searchTags(tags);
+            if(tagss){
+                tags_arr = tagss.map(tag => tag._id);
+            }else{
+                delete tags;
+            }
+        }
+
         if (pict) {
             let tmp_path = pict.path;
             let originalExt = pict.originalname.split('.')[pict.originalname.split('.').length - 1];
@@ -36,7 +48,7 @@ const inputProduct = async (data, pict) => {
             await new Promise((resolve, reject) => {
                 src.on('end', async () => {
                     try {
-                        let product = await inputProductServices(nama, price, stock, status, cat_id, filename);
+                        let product = await inputProductServices(nama, price, stock, status, cat_id, tags_arr, filename);
                         resolve(product);
                     } catch (error) {
                         fs.unlinkSync(target_path);
@@ -45,7 +57,7 @@ const inputProduct = async (data, pict) => {
                 });
             });
         } else {
-            const product = await inputProductServices(nama, price, stock, status, cat_id, 'default.svg');
+            const product = await inputProductServices(nama, price, stock, status, cat_id, tags_arr, 'default.svg');
             return product;
         }
     } catch (error) {
@@ -76,6 +88,7 @@ const findProduct = async (id) => {
                 stock: product._doc.stock,
                 status: product._doc.status,
                 category: product._doc.category,
+                tags: product._doc.tags,
                 image_url: `localhost:3030/public/images/products/${product.image_url}`
             };
         });
@@ -93,6 +106,7 @@ const findProduct = async (id) => {
             stock: product._doc.stock,
             status: product._doc.status,
             category: product._doc.category,
+            tags: product._doc.tags,
             image_url: `localhost:3030/public/images/products/${product.image_url}`
         }; // Mengembalikan object tunggal, bukan string JSON
     }
@@ -109,13 +123,32 @@ const updateProduct = async (data) => {
 };
 
 const updateSingleProduct = async (data) => {
-    const {id, nama, price, stock, status, pict} = data;
+    const {id, nama, price, stock, status, pict, category, tags} = data;
     if (!id || !nama || !price || !status) {
         throw new Error('ID, nama, price, dan status wajib diisi.');
     }
 
     try {
         let filename = null;
+        let cat_id = undefined;
+        let tags_arr = undefined;
+        if(category) {
+            let categories = await findCategoriesByName(category);
+            if(categories){
+                cat_id = categories._id;
+            }else{
+                delete category;
+            }
+        }
+
+        if(tags && tags.length > 0) {
+            let tagss = await searchTags(tags);
+            if(tagss){
+                tags_arr = tagss.map(tag => tag._id);
+            }else{
+                delete tags;
+            }
+        }
         if (pict) {
             const existingProduct = await findProduct(id);
             let existFile = null;
@@ -136,7 +169,7 @@ const updateSingleProduct = async (data) => {
             await new Promise((resolve, reject) => {
                 src.on('end', async () => {
                     try {
-                        await updateProductServices(id, {nama, price, stock, status, filename});
+                        await updateProductServices(id, {nama, price, stock, status, cat_id, tags_arr, filename});
                         if (existFile && existFile != 'default.svg') {
                             fs.unlinkSync(path.resolve(config.rootPath, `public/images/products/${existFile}`));
                         }
@@ -152,7 +185,7 @@ const updateSingleProduct = async (data) => {
             if (existingProduct) {
                 filename = existingProduct.filename; // Gunakan nama file yang sudah ada
             }
-            await updateProductServices(id, {nama, price, stock, status, filename});
+            await updateProductServices(id, {nama, price, stock, status, cat_id, tags_arr, filename});
         }
     } catch (error) {
         if (error && error.name === "ValidationError") {
